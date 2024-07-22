@@ -1,0 +1,2 @@
+set xs_return_result 1
+fakeit /home/jlmalewicz/Work/instrument_response/response/STROBE-X/LEMA60/lema_nxb_plus_cxb.bkg & /home/jlmalewicz/Work/instrument_response/response/STROBE-X/LEMA60/lema_2017-08-11.rmf & /home/jlmalewicz/Work/instrument_response/response/STROBE-X/LEMA60/lema_60_2023-11-16.arf & y &

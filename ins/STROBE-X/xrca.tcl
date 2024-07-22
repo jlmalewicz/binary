@@ -1,0 +1,1 @@
+fakeit response/STROBE-X/XRCA80/strobex_probe_nxb_plus_cxb.bkg & response/STROBE-X/XRCA80/xrca_2017-08-11.rmf & response/STROBE-X/XRCA80/xrca_75_2017-08-11.arf & y &

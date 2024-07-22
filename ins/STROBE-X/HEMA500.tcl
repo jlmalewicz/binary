@@ -1,0 +1,1 @@
+fakeit response/STROBE-X/HEMA/STROBEX_HEMA_500eV.bkg & response/STROBE-X/HEMA/STROBEX_HEMA_500eV.rmf & response/STROBE-X/HEMA/STROBEX_HEMA_500eV.arf & y &

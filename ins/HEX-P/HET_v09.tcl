@@ -1,0 +1,1 @@
+fakeit response/HEX-P/v09_rsp_files/HEXP_HET_v09_x2_L1_R18arcsec_Ln25keV.bkg & response/HEX-P/v09_rsp_files/HEXP_HET_v09.rmf & response/HEX-P/v09_rsp_files/HEXP_HET_v09_PSFcor_x2.arf & y &
