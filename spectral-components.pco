@@ -1,0 +1,31 @@
+SKIP SING
+YAX  LIN 10.8144112 13.7493286
+CSIZ  1.3
+FONT Roman
+LWIDTH   2.
+TIME OFF
+COL 1 ON 2
+COL 1 ON 3
+COL 1 ON 4
+COL 1 ON 5
+line ST     1
+line ST     2
+LS     2 ON   2
+line ST     3
+LS     3 ON   3
+line ST     4
+LS     4 ON   4
+line ST     5
+LS     5 ON   5
+R    X   0.100000001 100
+LOC  0 0 1 1
+LAB  1 POS 0.300000012 0.200000003 "Blackbody"
+LAB  2 POS 3.5 0.370000005 "Fe K\ga line"
+LAB  3 POS 25 0.100000001 "Compton reflection"
+LAB  4 POS 1.10000002 1.27999997 "\gG=2 cutoff power-law"
+LAB  5 POS 1.10000002 1.10000002 "and warm absorber"
+LAB  X  Energy (keV)
+LAB  Y  EF\dE\u (arbitrary scale)
+R    Y   0.0299999993 5
+LOG  X ON 1
+LOG  Y ON 1

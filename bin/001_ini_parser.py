@@ -1,5 +1,4 @@
 import configparser
-import definitions as eq
 import accretion_definitions as acc
 import numpy as np
 import json
@@ -22,7 +21,7 @@ xspec    = config['xspec']
 
 q = float(params['q'])
 M = float(params['M']) * Msun
-sep   = float(params['sep'])   * eq.grav_radius(M)
+sep   = float(params['sep'])   * acc.grav_radius(M)
 incl  = float(params['incl'])  * np.pi/180
 phase = float(params['phase']) * np.pi/180
 spin1, spin2     = float(params['spin1']),   float(params['spin2'])
@@ -30,13 +29,12 @@ height1, height2 = float(params['height1']), float(params['height2'])
 lambda_tot = float(params['lambda_tot'])
 
 
-m1 = M / (1+q)
-m2 = q * m1
+m1,m2,_,_,_, lambda_1, _, lambda_2 = acc.get_all_mdot(lambda_tot, q, M)
 
-rin1, rin2 = eq.rms_real_units(spin1, m1), eq.rms_real_units(spin2, m2)
-rg1, rg2   = eq.grav_radius(m1), eq.grav_radius(m2)
+rin1, rin2 = acc.rms_real_units(spin1, m1), acc.rms_real_units(spin2, m2)
+rg1, rg2   = acc.grav_radius(m1), acc.grav_radius(m2)
 
-_,_,_, lambda_1, _, lambda_2 = acc.get_all_mdot('total', lambda_tot, q, M)
+
 
 
 
@@ -47,9 +45,9 @@ _,_,_, lambda_1, _, lambda_2 = acc.get_all_mdot('total', lambda_tot, q, M)
 
 # outer radius
 if flags['truncate'] == 'pichardo':
-    rout1, rout2 = eq.truncated_rout(sep, q)
+    rout1, rout2 = acc.truncated_rout(sep, q)
 elif flags['truncate'] == 'roche':
-    rout1, rout2 = eq.roche_lobe(sep,q)
+    rout1, rout2 = acc.roche_lobe(sep,q)
 else:
     raise Exception("Error with truncate flag")
 
@@ -61,7 +59,7 @@ else:
     mdot1, mdot2 = 1, 1
 # relative norms: emitting area
 if flags['norm_relative_area']:
-    area1, area2 = eq.relative_area(rin = [rin1, rin2], rout = [rout1, rout2])
+    area1, area2 = acc.relative_area(rin = [rin1, rin2], rout = [rout1, rout2])
 else:
     area1, area2 = 1, 1
 
@@ -70,8 +68,8 @@ xi_1 = acc.get_xi(height1,spin1,loglambda_edd=np.log10(lambda_1), relxill_bound=
 xi_2 = acc.get_xi(height1,spin2,loglambda_edd=np.log10(lambda_2), relxill_bound=True )
 
 # radial doppler
-v1, v2 = eq.velocities(M, mass_ratio=q, sep=sep)
-z1, z2 = eq.redshift(v1, phase, incl), eq.redshift(v2, phase, incl)
+v1, v2 = acc.velocities(M, mass_ratio=q, sep=sep)
+z1, z2 = acc.redshift(v1, phase, incl), acc.redshift(v2, phase, incl)
 
 #############
 # UTILITIES #
