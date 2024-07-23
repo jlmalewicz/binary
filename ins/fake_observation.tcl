@@ -1,8 +1,8 @@
 set xs_return_result 1
-#set folder "/home/jmalewicz3/Charles/instrument_response/response"
+# set folder "/home/jlm/work/gatech/binaryspectrum"
 # Note that filenames cannot > 68 chars. if they are to appear in the fakeit file's RESPFILE or ANCRFILE entry
-# Given that this script is already in the /response/ folder, we set:
-set folder "response/"
+# Given that this script is already in the binaryspectrum/ins/ folder, we set:
+set folder "ins/"
 
 while {1} {
     puts -nonewline "Enter mission (strobex, hexp or athena): "
@@ -92,3 +92,5 @@ fakeit ${bkg_loc} & ${rmf_loc} & ${arf_loc} & y & ${fake_file_prefix} & ${fake_f
 
 setp co LA T $mission t=$texp ks || z=$z log10(M/Msun)=$logm $optional_title_a || $optional_title_p 
 pl ld
+
+mv *.fak dat/.
