@@ -25,4 +25,3 @@ or
 ```
 gcc -o xivsedd xivsedd.c complex.c -lm
 ```
-

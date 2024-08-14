@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import accretion_definitions as acc
+import bin.accretion_definitions as acc
 
 fixed_lambda_values = np.logspace(-2,0, num = 50)
 #q = np.logspace(-1.58, 0, num = 50)

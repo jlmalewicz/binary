@@ -1,4 +1,4 @@
-import matplotlib.pyplot as plt
+import numpy as np
 
 def gridline(plot_type):
     for plot in plot_type:
@@ -11,8 +11,17 @@ cycle = {'magma':   ["#050418", "#3e0f72", "#7b2281", "#b3357a", "#ee5d5d", "#fe
         }
 
 
-def print_(values, to = 'exp'):
-    if to == 'exp':
-        return ['{:.2e}'.format(x) for x in values]
-    elif to == 'percent':
-        return ['{:.2%}'.format(x) for x in values]
+def print_to_latex(x, unit):
+    exp = int(np.floor(np.log10(abs(x))))
+    num = x / 10**(exp)
+    if num == 1.:
+        str = r' = 10^{:.0f} \;'.format(exp)
+    elif exp == 0:
+        str = r' = {:.2f} \;'.format(num)
+    elif 1 < abs(x) < 1e3:
+        str = r' = {:.2f} \;'.format(x)
+    elif exp >= 10 or exp < 0:
+        str = r' = {:.2f}'.format(num) + r'\cdot 10^{'+r'{}'.format(exp)+r'} \;'
+    else:
+        str = r' = {:.2f} \cdot 10^{:.0f} \;'.format(num,exp)
+    return str+unit

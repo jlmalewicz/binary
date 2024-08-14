@@ -35,9 +35,6 @@ rin1, rin2 = acc.rms_real_units(spin1, m1), acc.rms_real_units(spin2, m2)
 rg1, rg2   = acc.grav_radius(m1), acc.grav_radius(m2)
 
 
-
-
-
 #############
 # COMPUTING #
 #############
@@ -69,7 +66,7 @@ xi_2 = acc.get_xi(height1,spin2,loglambda_edd=np.log10(lambda_2), relxill_bound=
 
 # radial doppler
 v1, v2 = acc.velocities(M, mass_ratio=q, sep=sep)
-z1, z2 = acc.redshift(v1, phase, incl), acc.redshift(v2, phase, incl)
+z1, z2 = acc.orbital_redshift(v1, phase, incl), acc.orbital_redshift(v2, phase, incl)
 
 #############
 # UTILITIES #

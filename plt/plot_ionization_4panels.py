@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import accretion_definitions as accdef
+import bin.accretion_definitions as accdef
 
 
 fixed_lambda_value = 0.1

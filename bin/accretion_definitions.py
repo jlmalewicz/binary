@@ -16,12 +16,14 @@ import pandas as pd
 import numpy as np
 import subprocess
 from os.path import isfile
+from os import rename
 
-path_to_ion = '~/work/gatech/binaryspectrum/ion/'
+path_to_ion = '/home/jlm/work/gatech/binaryspectrum/ion/'
 
 G = 6.67e-11 #Newtons kg-2 m2.
 c = 299792458 #m/s
 Msun = 1.989e30 #kg
+Lsun = 3.846e33 #ergs/s
 
 
 def grav_radius(mass):
@@ -70,14 +72,14 @@ def velocities(M, sep, mass_ratio):
     return -mass_ratio/(1+mass_ratio) * v, 1/(1+mass_ratio) * v
 
 
-def redshift(velocity, phase, incl): #gets us z
+def orbital_redshift(velocity, phase, incl): #gets us z
     num = np.sqrt(1-(velocity/c)**2)
     den = 1 + np.sin(incl) * np.sin(phase) * velocity / c
     return num/den - 1 
 
 def relative_area(rin, rout):
-    area1 = np.pi * (rout[0]**2 - rin[0]**2)
-    area2 = np.pi * (rout[1]**2 - rin[1]**2)
+    area1 = (rout[0]**2 - rin[0]**2)
+    area2 = (rout[1]**2 - rin[1]**2)
     return 1, area2/area1
 
 def find_corresponding_y_lim(xx, y1, y2, y1y2, xmin, xmax):
@@ -128,32 +130,16 @@ def relative_accretion(mass_ratio, shift_to_1=True):
         shift = 0
     return shift + q**(-.25) * np.exp(-0.1/q) + 50/((12*q)**3.5 + (12*q)**(-3.5))
 
-def get_xi_from_xivsrad(height, spin, lambda_edd):
-    '''
-    Run xivsrad to get log(xi) at (11/9)^2 * rin
-    Now obsolete
-    '''
-    lambda_edd = ('{:.3f}'.format(lambda_edd))
-
-    subprocess.run([path_to_ion+"xivsrad_h-a-lambda", str(height), str(spin), str(lambda_edd)])
-
-    rin      = rms(spin)
-
-    filename = "xiLedd_h"+str(height)+"_a"+str(spin)+"_edd"+str(lambda_edd)+".dat"
-
-    data     = pd.read_table(filename, names = ['r', 'xi'])
-    xi_max   = find_nearest(data.r, data.xi, (11/9)**2 * rin)
-
-    return xi_max
 
 
 def get_xi(height, spin, loglambda_edd, relxill_bound=False):
-    filename = path_to_ion+"ximaxvsedd_h"+str(height)+"_a"+str(spin)+".dat"
 
-    if not isfile(filename):
+    filename = "ximaxvsedd_h"+str(height)+"_a"+str(spin)+".dat"
+    if not isfile(path_to_ion+filename):
         subprocess.run([path_to_ion+"xivsedd", str(height), str(spin)])
+        rename(filename,path_to_ion+filename)
     
-    data = pd.read_table(filename, names = ['loglambda', 'xi'])
+    data = pd.read_table(path_to_ion+filename, names = ['loglambda', 'xi'])
 
     xi_max = find_nearest(data.loglambda, data.xi, loglambda_edd)
 
@@ -166,7 +152,29 @@ def get_xi(height, spin, loglambda_edd, relxill_bound=False):
     return xi_max
 
 
+def get_all_edd(fixed_lambda_tot, q, M):
+    '''
+    Returns m1,m2 and all mdots & lambdas for the system (1, 2, and total)
 
+            Parameters:
+                    fixed_lambda_tot (float)
+                    q (float): mass ratio m2/m1 where m1>m2
+                    M (float): total mass (same unit as m1,m2)
+
+            Returns:
+                    m1, m2, lambda_tot, lambda_1, lambda_2
+    '''    
+    k = relative_accretion(q)
+
+    m1 = M / (1+q)
+    m2 = q * M / (1+q)
+
+
+    lambda_tot = fixed_lambda_tot * np.ones_like(q)
+    lambda_1   = (1+q)/(1+k) * lambda_tot
+    lambda_2   = (1+q)/q * k/(1+k) * lambda_tot
+
+    return m1,m2, lambda_tot, lambda_1, lambda_2
 
 def get_all_mdot(fixed_lambda_tot, q, M):
     '''
@@ -198,46 +206,117 @@ def get_all_mdot(fixed_lambda_tot, q, M):
     return m1,m2,Mdot, lambda_tot, m1dot, lambda_1, m2dot, lambda_2
 
 
-def bolometric_correction(func, mass=1e7, eddratio=1.0):
+def bolometric_correction(func, value):
     '''
-    Uses empirical fitting formula to output f_x, or
-    the fraction of the total bolometric luminosity
-    that is emitted as X-ray
+    Uses empirical fitting formula to output the fraction of the total bolometric luminosity that is emitted as X-ray (Source Duras+2020)
 
-    Source: Duras+2020
-
-    INPUTS:
-
-    -- func --
-    Specify whether to use Eddington ratio ('eddratio'),
-    or black hole mass in M_sun ('mass')
-
-    -- mass --
-    in M_sun
-
-    -- eddratio --
-
-    OUTPUTS:
-
-    -- fx --
-    Bolometric flux / X-ray flux
-    fx * Lbol = Lx
-    '''
+            Parameters:
+                    func (str): Specify whether to use Eddington ratio ('eddratio'), or BH mass ('mass')
+                    value (float): BH mass in Msun OR Edd ratio or BH lumin in Lsun
+            Returns:
+                    fx: Bolometric flux / X-ray flux s.t. fx * Fbol = Fx
+    '''  
     if func == 'mass':
-        temp = np.log10(mass)
+        temp = np.log10(value)
         a = 16.75
         b = 9.22
         c = 26.14
     elif func == 'eddratio':
-        temp = eddratio
+        temp = value
         a = 7.51
         b = 0.05
         c = 0.61
+    elif func == 'lumin':
+        temp = np.log10(value)
+        a = 12.76
+        b = 12.15
+        c = 18.78
     else:
-        print("func can only be mass or eddratio")
+        print("func can only be mass, eddratio or lumin")
     
     kx = a * (1 + (temp/b)**c) # type: ignore
     
     return 1/kx
 
 
+def luminosity_distance(z):
+
+    H0 = 70 #69.6                         
+    WM = 0.3 #0.286                        
+    WV = 0.7   # 1.0 - WM - 0.4165/(H0**2)  # Omega(vacuum) or lambda
+
+    c = 299792.458 # velocity of light in km/sec
+    DCMR = 0.0     # comoving radial distance in units of c/H0
+    DA = 0.0       # angular size distance
+    DL = 0.0       # luminosity distance
+
+    az = 0.5       # 1/(1+z(object))   
+    h = H0/100.
+    WR = 4.165E-5/(h*h)   # includes 3 massless neutrino species, T0 = 2.72528
+    WK = 1-WM-WR-WV
+    az = 1.0/(1+1.0*z)
+    n=1000         # number of points in integrals
+    
+    DCMR = 0.0
+
+    # do integral over a=1/(1+z) from az to 1 in n steps, midpoint rule
+    for i in range(n):
+        a = az+(1-az)*(i+0.5)/n
+        adot = np.sqrt(WK+(WM/a)+(WR/(a*a))+(WV*a*a))
+        DCMR = DCMR + 1./(a*adot)
+
+    DCMR = (1.-az)*DCMR/n
+
+    x = np.sqrt(abs(WK))*DCMR
+    if x > 0.1:
+        if WK > 0:
+            ratio =  0.5*(np.exp(x)-np.exp(-x))/x 
+        else:
+            ratio = np.sin(x)/x
+    else:
+        y = x*x
+        if WK < 0: y = -y
+        ratio = 1. + y/6. + y*y/120.
+
+    DCMT = ratio*DCMR
+    DA = az*DCMT
+
+    DL = DA/(az*az)
+    DL_Mpc = (c/H0)*DL
+
+    return(DL_Mpc)
+
+def Eddington_luminosity(M):
+    '''
+    Returns Eddington luminosity for mass M in erg/s
+
+            Parameters:
+                    M : mass (kg)
+
+            Returns:
+                    Ledd : Edd lumin (erg/s)
+    '''
+    return 1.26e38 * M/Msun #erg/s
+
+
+def Xray_flux(m, dL, lambda_, optional_Lx=False):
+    '''
+    Returns X-ray flux of a source of luminosity L at a luminosity distance dL accreting at lambda_ of Eddington in erg / cm^2 / s
+
+            Parameters:
+                    m : mass (kg)
+                    dL : luminosity distance (m)
+                    lambda_ : Eddington ratio (unitless)
+
+            Returns:
+                    Fx : Fbol * fx (in erg/cm^2/s)
+                    Lx : Luminosity (erg/s), optional
+    '''  
+    fx = bolometric_correction(func='eddratio',value=lambda_)
+    Lx = lambda_ * fx * Eddington_luminosity(m) 
+    dL *= 100 #input dL is meters, output flux must be cm
+    Fx = Lx / (4 * np.pi * dL**2)
+    if optional_Lx==True:
+        return Lx, Fx
+    else:
+        return Fx
