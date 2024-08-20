@@ -8,7 +8,7 @@ model const*phabs*(cflux*(zashift*relxilllpCp + zashift*relxilllpCp + zashift*re
 # 1 :     Emin, Emax,lg10Flux
 2
 10
--15.16
+-16.19
 # 1)0 :   Redshift
 -0.001
 # 1)0 :   Incl, a, Rin, Rout, h, beta, gamma, logxi, logN, Afe, kTe, refl_frac, z, iongrad_index, iongrad_type, switch_returnrad, switch_reflfrac_boost, norm
@@ -96,7 +96,7 @@ model const*phabs*(cflux*(zashift*relxilllpCp + zashift*relxilllpCp + zashift*re
 # 2 :     Emin, Emax,lg10Flux
 2
 10
--15.20
+-16.20
 # 2)0 :   Redshift
 -0.001
 # 2)0 :   Incl, a, Rin, Rout, h, beta, gamma, logxi, logN, Afe, kTe, refl_frac, z, iongrad_index, iongrad_type, switch_returnrad, switch_reflfrac_boost, norm
